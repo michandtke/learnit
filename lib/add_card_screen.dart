@@ -1,63 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'app_state.dart';
 
-class AddCardScreen extends StatefulWidget {
-  final Function(String, String) onSave;
+class AddCardScreen extends StatelessWidget {
+  final String deckId;
+  final TextEditingController _questionController = TextEditingController();
+  final TextEditingController _answerController = TextEditingController();
 
-  AddCardScreen({required this.onSave});
-
-  @override
-  _AddCardScreenState createState() => _AddCardScreenState();
-}
-
-class _AddCardScreenState extends State<AddCardScreen> {
-  late TextEditingController _questionController;
-  late TextEditingController _answerController;
-
-  @override
-  void initState() {
-    super.initState();
-    _questionController = TextEditingController();
-    _answerController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _questionController.dispose();
-    _answerController.dispose();
-    super.dispose();
-  }
+  AddCardScreen({required this.deckId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add New Card'),
+        title: Text('Add Card'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             TextField(
               controller: _questionController,
-              decoration: InputDecoration(
-                labelText: 'Question',
-              ),
+              decoration: InputDecoration(labelText: 'Question'),
             ),
-            SizedBox(height: 20),
             TextField(
               controller: _answerController,
-              decoration: InputDecoration(
-                labelText: 'Answer',
-              ),
+              decoration: InputDecoration(labelText: 'Answer'),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: () {
-                widget.onSave(_questionController.text, _answerController.text);
+                Provider.of<AppState>(context, listen: false).addCard(
+                  deckId,
+                  _questionController.text,
+                  _answerController.text,
+                );
                 Navigator.pop(context);
               },
-              child: Text('Save Card'),
+              child: Text('Add Card'),
             ),
           ],
         ),
