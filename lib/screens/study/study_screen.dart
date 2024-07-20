@@ -14,8 +14,57 @@ class StudyScreen extends StatefulWidget {
   _StudyScreenState createState() => _StudyScreenState();
 }
 
-class _StudyScreenState extends State<StudyScreen> {
+class _StudyScreenState extends State<StudyScreen> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
+  bool _showAnswer = false;
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _nextCard() {
+    setState(() {
+      _showAnswer = false;
+      if (_currentIndex < Provider.of<CardProvider>(context, listen: false).cards.length - 1) {
+        _currentIndex++;
+        _controller.forward(from: 0.0);
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FinishedScreen(),
+          ),
+        );
+      }
+    });
+  }
+
+  void _previousCard() {
+    setState(() {
+      _showAnswer = false;
+      if (_currentIndex > 0) {
+        _currentIndex--;
+        _controller.forward(from: 0.0);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,66 +78,62 @@ class _StudyScreenState extends State<StudyScreen> {
       body: cards.isEmpty
           ? LoadingIndicator()
           : Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              cards[_currentIndex].question,
-              style: TextStyle(fontSize: 24.0),
+            Expanded(
+              child: FadeTransition(
+                opacity: _animation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      cards[_currentIndex].question,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    if (_showAnswer)
+                      Text(
+                        cards[_currentIndex].answer,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20.0, color: Colors.green),
+                      )
+                  ],
+                ),
+              ),
             ),
             SizedBox(height: 20),
             CustomButton(
-              text: 'Show Answer',
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    content: Text(cards[_currentIndex].answer),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text('Close'),
-                      ),
-                    ],
-                  ),
-                );
+              text: _showAnswer ? 'Next' : 'Show Answer',
+              onPressed: _showAnswer ? _nextCard : () {
+                setState(() {
+                  _showAnswer = true;
+                });
               },
             ),
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _currentIndex > 0
-                    ? CustomButton(
-                  text: 'Previous',
-                  onPressed: () {
-                    setState(() {
-                      _currentIndex--;
-                    });
-                  },
-                )
-                    : Container(),
-                _currentIndex < cards.length - 1
-                    ? CustomButton(
-                  text: 'Next',
-                  onPressed: () {
-                    setState(() {
-                      _currentIndex++;
-                    });
-                  },
-                )
-                    : CustomButton(
-                  text: 'Finish',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FinishedScreen(),
-                      ),
-                    );
-                  },
-                ),
+                if (_currentIndex > 0)
+                  CustomButton(
+                    text: 'Previous',
+                    onPressed: _previousCard,
+                  ),
+                if (_currentIndex == cards.length - 1 && _showAnswer)
+                  CustomButton(
+                    text: 'Finish',
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FinishedScreen(),
+                        ),
+                      );
+                    },
+                  ),
               ],
             ),
           ],
