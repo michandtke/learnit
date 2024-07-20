@@ -1,58 +1,74 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:learnit/providers/card_provider.dart';
-import 'package:learnit/models/deck_model.dart';
-import 'package:learnit/models/card_model.dart';
-import 'package:learnit/screens/card/add_card_screen.dart';
-import 'package:learnit/screens/study/study_screen.dart';
-import 'package:learnit/widgets/loading_indicator.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../card/edit_card_screen.dart';
+import '../study/study_mode_screen.dart';
 
 class DeckScreen extends StatelessWidget {
   final String deckId;
+  final String deckName;
 
-  DeckScreen({required this.deckId});
+  DeckScreen({required this.deckId, required this.deckName});
 
   @override
   Widget build(BuildContext context) {
-    final cardProvider = Provider.of<CardProvider>(context);
-    cardProvider.loadCards(deckId);
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Deck Details'),
+        title: Text(deckName),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.play_arrow),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AddCardScreen(deckId: deckId)),
+                MaterialPageRoute(
+                  builder: (context) => StudyModeScreen(deckId: deckId),
+                ),
               );
             },
           ),
         ],
       ),
-      body: Consumer<CardProvider>(
-        builder: (context, cardProvider, child) {
-          if (cardProvider.cards.isEmpty) {
-            return Center(child: Text('No cards available.'));
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('decks')
+            .doc(deckId)
+            .collection('cards')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
           }
+          var cards = snapshot.data!.docs;
           return ListView.builder(
-            itemCount: cardProvider.cards.length,
+            itemCount: cards.length,
             itemBuilder: (context, index) {
-              final card = cardProvider.cards[index];
+              var card = cards[index];
               return ListTile(
-                title: Text(card.question),
+                title: Text(card['question']),
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => StudyScreen(deckId: deckId)),
+                    MaterialPageRoute(
+                      builder: (context) => EditCardScreen(
+                        deckId: deckId,
+                        cardId: card.id,
+                        question: card['question'],
+                        answer: card['answer'],
+                      ),
+                    ),
                   );
                 },
               );
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Add functionality to add a new card
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
