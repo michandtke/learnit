@@ -62,11 +62,13 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
   void _markAsCorrect() {
     // Handle marking the card as correct (e.g., update statistics)
     // For now, we just move to the next card
+    _nextCard();
   }
 
   void _markAsWrong() {
     // Handle marking the card as wrong (e.g., update statistics)
     // For now, we just move to the next card
+    _nextCard();
   }
 
   @override

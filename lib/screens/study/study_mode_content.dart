@@ -50,6 +50,9 @@ class _StudyModeContentState extends State<StudyModeContent> {
         widget.onWrong();
       });
     }
+    setState(() {
+      _showAnswer = true;
+    });
   }
 
   @override
