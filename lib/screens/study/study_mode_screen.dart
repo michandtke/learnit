@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:learnit/screens/study/study_mode_content.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/study_mode_service.dart';
 import 'finished_screen.dart';
 
 class StudyModeScreen extends StatefulWidget {
@@ -75,16 +77,18 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
 
     var card = _cards[_currentIndex];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Study Mode'),
-      ),
-      body: StudyModeContent(
-        question: card['question'],
-        answer: card['answer'],
-        onNext: _nextCard,
-        onPrevious: _previousCard,
-      ),
-    );
+    return ChangeNotifierProvider(
+        create: (_) => StudyModeService(),
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text('Study Mode'),
+          ),
+          body: StudyModeContent(
+            question: card['question'],
+            answer: card['answer'],
+            onNext: _nextCard,
+            onPrevious: _previousCard,
+          ),
+        ));
   }
 }
