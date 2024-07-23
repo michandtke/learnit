@@ -38,13 +38,13 @@ class _StudyModeContentState extends State<StudyModeContent> {
 
   void _submitAnswer() {
     setState(() {
-      _answered = true;
       if (_controller.text.trim().toLowerCase() == widget.answer.trim().toLowerCase()) {
         _feedback = 'Correct!';
+        _answered = true;
       } else {
-        _feedback = 'Wrong. The correct answer is: ${widget.answer}';
+        _feedback = 'Wrong. Try again.';
+        _showAnswer = true;
       }
-      _showAnswer = true;
     });
   }
 
@@ -115,7 +115,7 @@ class _StudyModeContentState extends State<StudyModeContent> {
                 ),
               ],
             ),
-          if (_answered)
+          if (_answered && _feedback == 'Correct!')
             ElevatedButton(
               onPressed: _nextCard,
               style: ElevatedButton.styleFrom(
