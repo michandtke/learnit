@@ -5,16 +5,12 @@ class StudyModeContent extends StatefulWidget {
   final String answer;
   final VoidCallback onNext;
   final VoidCallback onPrevious;
-  final VoidCallback onCorrect;
-  final VoidCallback onWrong;
 
   StudyModeContent({
     required this.question,
     required this.answer,
     required this.onNext,
     required this.onPrevious,
-    required this.onCorrect,
-    required this.onWrong,
   });
 
   @override
@@ -23,6 +19,7 @@ class StudyModeContent extends StatefulWidget {
 
 class _StudyModeContentState extends State<StudyModeContent> {
   bool _showAnswer = false;
+  bool _answered = false;
   TextEditingController _controller = TextEditingController();
   String? _feedback;
 
@@ -32,6 +29,7 @@ class _StudyModeContentState extends State<StudyModeContent> {
     if (oldWidget.question != widget.question) {
       setState(() {
         _showAnswer = false;
+        _answered = false;
         _controller.clear();
         _feedback = null;
       });
@@ -39,19 +37,21 @@ class _StudyModeContentState extends State<StudyModeContent> {
   }
 
   void _submitAnswer() {
-    if (_controller.text.trim().toLowerCase() == widget.answer.trim().toLowerCase()) {
-      setState(() {
-        _feedback = 'Correct!';
-        widget.onCorrect();
-      });
-    } else {
-      setState(() {
-        _feedback = 'Wrong. The correct answer is: ${widget.answer}';
-        widget.onWrong();
-      });
-    }
     setState(() {
+      _answered = true;
+      if (_controller.text.trim().toLowerCase() == widget.answer.trim().toLowerCase()) {
+        _feedback = 'Correct!';
+      } else {
+        _feedback = 'Wrong. The correct answer is: ${widget.answer}';
+      }
       _showAnswer = true;
+    });
+  }
+
+  void _nextCard() {
+    widget.onNext();
+    setState(() {
+      _answered = false;
     });
   }
 
@@ -88,7 +88,7 @@ class _StudyModeContentState extends State<StudyModeContent> {
             ),
           ),
           SizedBox(height: 20),
-          if (!_showAnswer)
+          if (!_answered)
             Column(
               children: [
                 TextField(
@@ -115,6 +115,21 @@ class _StudyModeContentState extends State<StudyModeContent> {
                 ),
               ],
             ),
+          if (_answered)
+            ElevatedButton(
+              onPressed: _nextCard,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+              ),
+              child: Text(
+                'Next Card',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
           Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,17 +144,6 @@ class _StudyModeContentState extends State<StudyModeContent> {
                   padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
                 ),
                 child: Text('Previous'),
-              ),
-              ElevatedButton(
-                onPressed: widget.onNext,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-                ),
-                child: Text('Next'),
               ),
             ],
           ),
