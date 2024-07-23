@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/study_mode_service.dart';
 
-class StudyModeContent extends StatefulWidget {
+class StudyModeContent extends StatelessWidget {
   final String question;
   final String answer;
   final VoidCallback onNext;
   final VoidCallback onPrevious;
+
+  final TextEditingController _controller = TextEditingController();
 
   StudyModeContent({
     required this.question,
@@ -14,22 +16,6 @@ class StudyModeContent extends StatefulWidget {
     required this.onNext,
     required this.onPrevious,
   });
-
-  @override
-  _StudyModeContentState createState() => _StudyModeContentState();
-}
-
-class _StudyModeContentState extends State<StudyModeContent> {
-  TextEditingController _controller = TextEditingController();
-
-  @override
-  void didUpdateWidget(StudyModeContent oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.question != widget.question) {
-      Provider.of<StudyModeService>(context, listen: false).resetState();
-      _controller.clear();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +36,7 @@ class _StudyModeContentState extends State<StudyModeContent> {
                   child: Column(
                     children: [
                       Text(
-                        widget.question,
+                        question,
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       if (studyModeService.showAnswer && studyModeService.feedback != null)
@@ -69,7 +55,7 @@ class _StudyModeContentState extends State<StudyModeContent> {
                 ),
               ),
               SizedBox(height: 20),
-              if (!studyModeService.answered)
+              if (!studyModeService.showAnswer)
                 Column(
                   children: [
                     TextField(
@@ -79,7 +65,7 @@ class _StudyModeContentState extends State<StudyModeContent> {
                         border: OutlineInputBorder(),
                       ),
                       onSubmitted: (userAnswer) {
-                        studyModeService.submitAnswer(userAnswer, widget.answer);
+                        studyModeService.submitAnswer(userAnswer, answer);
                       },
                     ),
                     SizedBox(height: 20),
@@ -87,7 +73,7 @@ class _StudyModeContentState extends State<StudyModeContent> {
                       onPressed: () {
                         studyModeService.submitAnswer(
                           _controller.text,
-                          widget.answer,
+                          answer,
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -104,18 +90,21 @@ class _StudyModeContentState extends State<StudyModeContent> {
                     ),
                   ],
                 ),
-              if (studyModeService.answered && studyModeService.feedback == 'Correct!')
+              if (studyModeService.showAnswer)
                 ElevatedButton(
-                  onPressed: widget.onNext,
+                  onPressed: studyModeService.feedback == 'Correct!' ? onNext : () {
+                    studyModeService.resetState();
+                    _controller.clear();
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
+                    backgroundColor: studyModeService.feedback == 'Correct!' ? Colors.green : Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                   ),
                   child: Text(
-                    'Next Card',
+                    studyModeService.feedback == 'Correct!' ? 'Next Card' : 'Try Again',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -124,7 +113,7 @@ class _StudyModeContentState extends State<StudyModeContent> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
-                    onPressed: widget.onPrevious,
+                    onPressed: onPrevious,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey,
                       shape: RoundedRectangleBorder(
