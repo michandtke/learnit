@@ -23,6 +23,8 @@ class StudyModeContent extends StatefulWidget {
 
 class _StudyModeContentState extends State<StudyModeContent> {
   bool _showAnswer = false;
+  TextEditingController _controller = TextEditingController();
+  String? _feedback;
 
   @override
   void didUpdateWidget(StudyModeContent oldWidget) {
@@ -30,6 +32,22 @@ class _StudyModeContentState extends State<StudyModeContent> {
     if (oldWidget.question != widget.question) {
       setState(() {
         _showAnswer = false;
+        _controller.clear();
+        _feedback = null;
+      });
+    }
+  }
+
+  void _submitAnswer() {
+    if (_controller.text.trim().toLowerCase() == widget.answer.trim().toLowerCase()) {
+      setState(() {
+        _feedback = 'Correct!';
+        widget.onCorrect();
+      });
+    } else {
+      setState(() {
+        _feedback = 'Wrong. The correct answer is: ${widget.answer}';
+        widget.onWrong();
       });
     }
   }
@@ -54,12 +72,12 @@ class _StudyModeContentState extends State<StudyModeContent> {
                     widget.question,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  if (_showAnswer)
+                  if (_showAnswer && _feedback != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: Text(
-                        widget.answer,
-                        style: TextStyle(fontSize: 20, color: Colors.green),
+                        _feedback!,
+                        style: TextStyle(fontSize: 20, color: _feedback == 'Correct!' ? Colors.green : Colors.red),
                       ),
                     ),
                 ],
@@ -68,54 +86,32 @@ class _StudyModeContentState extends State<StudyModeContent> {
           ),
           SizedBox(height: 20),
           if (!_showAnswer)
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _showAnswer = true;
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+            Column(
+              children: [
+                TextField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    labelText: 'Your Answer',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-              ),
-              child: Text(
-                'Show Answer',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-          if (_showAnswer) ...[
-            ElevatedButton(
-              onPressed: widget.onCorrect,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _submitAnswer,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                  ),
+                  child: Text(
+                    'Submit Answer',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-              ),
-              child: Text(
-                'Correct',
-                style: TextStyle(fontSize: 16),
-              ),
+              ],
             ),
-            ElevatedButton(
-              onPressed: widget.onWrong,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-              ),
-              child: Text(
-                'Wrong',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
-          ],
           Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
