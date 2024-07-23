@@ -17,9 +17,9 @@ class StudyModeService with ChangeNotifier {
     notifyListeners();
   }
 
-  void resetState() {
+  void resetState(bool withNotify) {
     _showAnswer = false;
     _feedback = null;
-    notifyListeners();
+    if (withNotify) notifyListeners();
   }
 }
