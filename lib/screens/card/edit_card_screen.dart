@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learnit/models/card_model.dart';
 import 'package:learnit/providers/card_provider.dart';
 import 'package:learnit/utils/constants.dart';
+import 'package:learnit/widgets/primary_button.dart';
 import 'package:provider/provider.dart';
 
 class EditCardScreen extends StatefulWidget {
@@ -43,7 +44,8 @@ class _EditCardScreenState extends State<EditCardScreen> {
         createdAt: widget.card.createdAt,
       );
 
-      Provider.of<CardProvider>(context, listen: false).updateCard(widget.deckId, updatedCard);
+      Provider.of<CardProvider>(context, listen: false)
+          .updateCard(widget.deckId, updatedCard);
 
       Navigator.of(context).pop();
     }
@@ -83,14 +85,7 @@ class _EditCardScreenState extends State<EditCardScreen> {
                 },
               ),
               SizedBox(height: 32.0),
-              ElevatedButton(
-                onPressed: _saveCard,
-                child: Text('Save Card'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Constants.primaryColor,
-                  textStyle: TextStyle(color: Colors.white),
-                ),
-              ),
+              PrimaryButton(action: _saveCard, text: 'Save Card'),
             ],
           ),
         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:learnit/widgets/primary_button.dart';
 import 'package:provider/provider.dart';
 import 'package:learnit/providers/deck_provider.dart';
 
@@ -22,12 +23,12 @@ class AddDeckScreen extends StatelessWidget {
               decoration: InputDecoration(labelText: 'Deck Name'),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
+            PrimaryButton(
+              action: () {
                 deckProvider.addDeck(_nameController.text);
                 Navigator.pop(context);
               },
-              child: Text('Add Deck'),
+              text: 'Add Deck',
             ),
           ],
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../widgets/primary_button.dart';
+
 class FinishedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -23,11 +25,11 @@ class FinishedScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18.0),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
+            PrimaryButton(
+              action: () {
                 Navigator.pop(context);
               },
-              child: Text('Back to Home'),
+              text: 'Back to Home',
             ),
           ],
         ),

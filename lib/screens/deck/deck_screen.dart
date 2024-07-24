@@ -5,6 +5,8 @@ import 'package:learnit/screens/study/study_mode_screen.dart';
 import 'package:learnit/screens/card/edit_card_screen.dart';
 import 'package:learnit/widgets/card_item.dart';
 
+import '../card/add_card_screen.dart';
+
 class DeckScreen extends StatelessWidget {
   final String deckId;
   final String deckTitle;
@@ -56,7 +58,11 @@ class DeckScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
-          // Add new card logic
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => AddCardScreen(deckId: deckId)),
+          );
         },
       ),
     );
