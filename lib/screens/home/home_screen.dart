@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:learnit/providers/deck_provider.dart';
 import 'package:learnit/screens/deck/deck_screen.dart';
 import 'package:learnit/screens/deck/add_deck_screen.dart';
-import 'package:learnit/widgets/custom_button.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -40,7 +39,7 @@ class HomeScreen extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => DeckScreen(deckId: deck.id, deckName: deck.name,)),
+                    MaterialPageRoute(builder: (context) => DeckScreen(deckId: deck.id, deckTitle: deck.name,)),
                   );
                 },
               );

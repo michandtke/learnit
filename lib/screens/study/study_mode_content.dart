@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/study_mode_service.dart';
+import 'package:learnit/providers/study_mode_service.dart';
 
 class StudyModeContent extends StatelessWidget {
   final String question;
@@ -37,20 +37,16 @@ class StudyModeContent extends StatelessWidget {
                     children: [
                       Text(
                         question,
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
-                      if (studyModeService.showAnswer &&
-                          studyModeService.feedback != null)
+                      if (studyModeService.showAnswer && studyModeService.feedback != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 20.0),
                           child: Text(
                             studyModeService.feedback!,
                             style: TextStyle(
                               fontSize: 20,
-                              color: studyModeService.feedback == 'Correct!'
-                                  ? Colors.green
-                                  : Colors.red,
+                              color: studyModeService.feedback == 'Correct!' ? Colors.green : Colors.red,
                             ),
                           ),
                         ),
@@ -69,7 +65,7 @@ class StudyModeContent extends StatelessWidget {
                         border: OutlineInputBorder(),
                       ),
                       onSubmitted: (userAnswer) {
-                        studyModeService.submitAnswer(userAnswer, answer);
+                        studyModeService.submitAnswer(userAnswer);
                       },
                     ),
                     SizedBox(height: 20),
@@ -77,7 +73,6 @@ class StudyModeContent extends StatelessWidget {
                       onPressed: () {
                         studyModeService.submitAnswer(
                           _controller.text,
-                          answer,
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -96,29 +91,19 @@ class StudyModeContent extends StatelessWidget {
                 ),
               if (studyModeService.showAnswer)
                 ElevatedButton(
-                  onPressed: () {
-                    if (studyModeService.feedback == 'Correct!') {
-                      studyModeService.resetState(false);
-                      _controller.clear();
-                      onNext();
-                    } else {
-                      studyModeService.resetState(true);
-                      _controller.clear();
-                    }
+                  onPressed: studyModeService.feedback == 'Correct!' ? onNext : () {
+                    studyModeService.resetState();
+                    _controller.clear();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: studyModeService.feedback == 'Correct!'
-                        ? Colors.green
-                        : Colors.red,
+                    backgroundColor: studyModeService.feedback == 'Correct!' ? Colors.green : Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                   ),
                   child: Text(
-                    studyModeService.feedback == 'Correct!'
-                        ? 'Next Card'
-                        : 'Try Again',
+                    studyModeService.feedback == 'Correct!' ? 'Next Card' : 'Try Again',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
@@ -133,8 +118,7 @@ class StudyModeContent extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 24.0),
+                      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
                     ),
                     child: Text('Previous'),
                   ),

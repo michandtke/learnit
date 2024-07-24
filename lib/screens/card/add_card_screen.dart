@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:learnit/providers/card_provider.dart';
@@ -37,6 +38,7 @@ class AddCardScreen extends StatelessWidget {
                   id: DateTime.now().toString(),
                   question: _questionController.text,
                   answer: _answerController.text,
+                  createdAt: Timestamp.now(),
                 );
                 cardProvider.addCard(deckId, newCard);
                 Navigator.pop(context);

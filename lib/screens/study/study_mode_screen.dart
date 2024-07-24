@@ -1,94 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:learnit/screens/study/study_mode_content.dart';
 import 'package:provider/provider.dart';
+import 'package:learnit/providers/study_mode_service.dart';
+import 'package:learnit/screens/study/study_mode_content.dart';
 
-import '../../providers/study_mode_service.dart';
-import 'finished_screen.dart';
-
-class StudyModeScreen extends StatefulWidget {
+class StudyModeScreen extends StatelessWidget {
   final String deckId;
 
   StudyModeScreen({required this.deckId});
 
   @override
-  _StudyModeScreenState createState() => _StudyModeScreenState();
-}
-
-class _StudyModeScreenState extends State<StudyModeScreen> {
-  List<DocumentSnapshot> _cards = [];
-  int _currentIndex = 0;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCards();
-  }
-
-  void _loadCards() async {
-    var querySnapshot = await FirebaseFirestore.instance
-        .collection('decks')
-        .doc(widget.deckId)
-        .collection('cards')
-        .get();
-    setState(() {
-      _cards = querySnapshot.docs;
-      _isLoading = false;
-    });
-  }
-
-  void _nextCard() {
-    if (_currentIndex < _cards.length - 1) {
-      setState(() {
-        _currentIndex++;
-      });
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => FinishedScreen(),
-        ),
-      );
-    }
-  }
-
-  void _previousCard() {
-    if (_currentIndex > 0) {
-      setState(() {
-        _currentIndex--;
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (_cards.isEmpty) {
-      return Scaffold(
-        body: Center(child: Text('No cards available')),
-      );
-    }
-
-    var card = _cards[_currentIndex];
-
     return ChangeNotifierProvider(
-        create: (_) => StudyModeService(),
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text('Study Mode'),
-          ),
-          body: StudyModeContent(
-            question: card['question'],
-            answer: card['answer'],
-            onNext: _nextCard,
-            onPrevious: _previousCard,
-          ),
-        ));
+      create: (context) => StudyModeService()..loadCards(deckId),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Study Mode'),
+        ),
+        body: Consumer<StudyModeService>(
+          builder: (context, studyModeService, child) {
+            if (studyModeService.cards.isEmpty) {
+              return Center(child: CircularProgressIndicator());
+            }
+
+            return StudyModeContent(
+              question: studyModeService.currentCard.question,
+              answer: studyModeService.currentCard.answer,
+              onNext: () {
+                studyModeService.nextCard();
+              },
+              onPrevious: () {
+                studyModeService.previousCard();
+              },
+            );
+          },
+        ),
+      ),
+    );
   }
 }

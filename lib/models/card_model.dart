@@ -4,27 +4,30 @@ class CardModel {
   final String id;
   final String question;
   final String answer;
+  final Timestamp createdAt;
 
-  CardModel({required this.id, required this.question, required this.answer});
+  CardModel({
+    required this.id,
+    required this.question,
+    required this.answer,
+    required this.createdAt,
+  });
 
-  factory CardModel.fromJson(Map<String, dynamic> json) {
+  factory CardModel.fromSnapshot(DocumentSnapshot snapshot) {
+    final data = snapshot.data() as Map<String, dynamic>;
     return CardModel(
-      id: json['id'] as String,
-      question: json['question'] as String,
-      answer: json['answer'] as String,
+      id: snapshot.id,
+      question: data['question'] ?? '',
+      answer: data['answer'] ?? '',
+      createdAt: data['createdAt'] ?? Timestamp.now(),
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'question': question,
       'answer': answer,
+      'createdAt': createdAt,
     };
-  }
-
-  factory CardModel.fromDocument(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    return CardModel.fromJson(data);
   }
 }

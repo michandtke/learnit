@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../card/edit_card_screen.dart';
-import '../study/study_mode_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:learnit/providers/card_provider.dart';
+import 'package:learnit/screens/study/study_mode_screen.dart';
+import 'package:learnit/screens/card/edit_card_screen.dart';
+import 'package:learnit/widgets/card_item.dart';
 
 class DeckScreen extends StatelessWidget {
   final String deckId;
-  final String deckName;
+  final String deckTitle;
 
-  DeckScreen({required this.deckId, required this.deckName});
+  DeckScreen({required this.deckId, required this.deckTitle});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(deckName),
+        title: Text(deckTitle),
         actions: [
           IconButton(
-            icon: Icon(Icons.play_arrow),
+            icon: Icon(Icons.school),
             onPressed: () {
               Navigator.push(
                 context,
@@ -29,33 +30,21 @@ class DeckScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('decks')
-            .doc(deckId)
-            .collection('cards')
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-          var cards = snapshot.data!.docs;
+      body: Consumer<CardProvider>(
+        builder: (context, cardProvider, child) {
+          cardProvider.loadCards(deckId);
           return ListView.builder(
-            itemCount: cards.length,
+            itemCount: cardProvider.cards.length,
             itemBuilder: (context, index) {
-              var card = cards[index];
-              return ListTile(
-                title: Text(card['question']),
+              final card = cardProvider.cards[index];
+              return CardItem(
+                card: card,
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EditCardScreen(
-                        deckId: deckId,
-                        cardId: card.id,
-                        question: card['question'],
-                        answer: card['answer'],
-                      ),
+                      builder: (context) =>
+                          EditCardScreen(deckId: deckId, card: card),
                     ),
                   );
                 },
@@ -65,10 +54,10 @@ class DeckScreen extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add functionality to add a new card
-        },
         child: Icon(Icons.add),
+        onPressed: () {
+          // Add new card logic
+        },
       ),
     );
   }

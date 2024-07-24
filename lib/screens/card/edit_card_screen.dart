@@ -1,28 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:learnit/models/card_model.dart';
+import 'package:learnit/providers/card_provider.dart';
+import 'package:learnit/utils/constants.dart';
+import 'package:provider/provider.dart';
 
-class EditCardScreen extends StatelessWidget {
+class EditCardScreen extends StatefulWidget {
   final String deckId;
-  final String cardId;
-  final String question;
-  final String answer;
+  final CardModel card;
 
-  EditCardScreen({
-    required this.deckId,
-    required this.cardId,
-    required this.question,
-    required this.answer,
-  });
+  const EditCardScreen({Key? key, required this.deckId, required this.card})
+      : super(key: key);
 
+  @override
+  _EditCardScreenState createState() => _EditCardScreenState();
+}
+
+class _EditCardScreenState extends State<EditCardScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _questionController = TextEditingController();
-  final TextEditingController _answerController = TextEditingController();
+  late TextEditingController _questionController;
+  late TextEditingController _answerController;
+
+  @override
+  void initState() {
+    super.initState();
+    _questionController = TextEditingController(text: widget.card.question);
+    _answerController = TextEditingController(text: widget.card.answer);
+  }
+
+  @override
+  void dispose() {
+    _questionController.dispose();
+    _answerController.dispose();
+    super.dispose();
+  }
+
+  void _saveCard() {
+    if (_formKey.currentState!.validate()) {
+      final updatedCard = CardModel(
+        id: widget.card.id,
+        question: _questionController.text,
+        answer: _answerController.text,
+        createdAt: widget.card.createdAt,
+      );
+
+      Provider.of<CardProvider>(context, listen: false).updateCard(widget.deckId, updatedCard);
+
+      Navigator.of(context).pop();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    _questionController.text = question;
-    _answerController.text = answer;
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Card'),
@@ -32,7 +60,7 @@ class EditCardScreen extends StatelessWidget {
         child: Form(
           key: _formKey,
           child: Column(
-            children: [
+            children: <Widget>[
               TextFormField(
                 controller: _questionController,
                 decoration: InputDecoration(labelText: 'Question'),
@@ -43,6 +71,7 @@ class EditCardScreen extends StatelessWidget {
                   return null;
                 },
               ),
+              SizedBox(height: 16.0),
               TextFormField(
                 controller: _answerController,
                 decoration: InputDecoration(labelText: 'Answer'),
@@ -53,23 +82,14 @@ class EditCardScreen extends StatelessWidget {
                   return null;
                 },
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 32.0),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    FirebaseFirestore.instance
-                        .collection('decks')
-                        .doc(deckId)
-                        .collection('cards')
-                        .doc(cardId)
-                        .update({
-                      'question': _questionController.text,
-                      'answer': _answerController.text,
-                    });
-                    Navigator.pop(context);
-                  }
-                },
-                child: Text('Save'),
+                onPressed: _saveCard,
+                child: Text('Save Card'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Constants.primaryColor,
+                  textStyle: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
