@@ -23,7 +23,6 @@ class StudyModeService with ChangeNotifier {
   void submitAnswer(String userAnswer) {
     if (userAnswer.trim().toLowerCase() == currentCard.answer.trim().toLowerCase()) {
       _feedback = 'Correct!';
-      nextCard();
     } else {
       _feedback = 'Wrong, try again!';
     }
@@ -37,17 +36,12 @@ class StudyModeService with ChangeNotifier {
     notifyListeners();
   }
 
-  void nextCard() {
+  bool nextCard() {
     if (_currentCardIndex < _cards.length - 1) {
       _currentCardIndex++;
       resetState();
+      return true;
     }
-  }
-
-  void previousCard() {
-    if (_currentCardIndex > 0) {
-      _currentCardIndex--;
-      resetState();
-    }
+    return false;
   }
 }

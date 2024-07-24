@@ -9,13 +9,11 @@ class StudyModeContent extends StatelessWidget {
   final String question;
   final String answer;
   final VoidCallback onNext;
-  final VoidCallback onPrevious;
 
   StudyModeContent({
     required this.question,
     required this.answer,
     required this.onNext,
-    required this.onPrevious,
   });
 
   @override

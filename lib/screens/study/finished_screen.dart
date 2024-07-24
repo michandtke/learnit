@@ -28,6 +28,7 @@ class FinishedScreen extends StatelessWidget {
             PrimaryButton(
               action: () {
                 Navigator.pop(context);
+                Navigator.pop(context);
               },
               text: 'Back to Home',
             ),

@@ -15,9 +15,7 @@ class StudyModeFeedback extends StatelessWidget {
         feedback,
         style: TextStyle(
           fontSize: 20,
-          color: correct
-              ? Colors.green
-              : Colors.red,
+          color: correct ? Colors.green : Colors.red,
         ),
       ),
     );
