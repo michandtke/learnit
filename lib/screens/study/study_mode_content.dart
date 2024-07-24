@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:learnit/screens/study/study_mode_feedback.dart';
+import 'package:learnit/screens/study/study_mode_input.dart';
+import 'package:learnit/screens/study/study_mode_question.dart';
 import 'package:provider/provider.dart';
 import 'package:learnit/providers/study_mode_service.dart';
 
@@ -7,8 +10,6 @@ class StudyModeContent extends StatelessWidget {
   final String answer;
   final VoidCallback onNext;
   final VoidCallback onPrevious;
-
-  final TextEditingController _controller = TextEditingController();
 
   StudyModeContent({
     required this.question,
@@ -35,72 +36,24 @@ class StudyModeContent extends StatelessWidget {
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     children: [
-                      Text(
-                        question,
-                        style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
+                      StudyModeQuestion(question: question),
                       if (studyModeService.showAnswer &&
                           studyModeService.feedback != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 20.0),
-                          child: Text(
-                            studyModeService.feedback!,
-                            style: TextStyle(
-                              fontSize: 20,
-                              color: studyModeService.feedback == 'Correct!'
-                                  ? Colors.green
-                                  : Colors.red,
-                            ),
-                          ),
-                        ),
+                        StudyModeFeedback(
+                            feedback: studyModeService.feedback!,
+                            correct: studyModeService.feedback == 'Correct!'),
                     ],
                   ),
                 ),
               ),
               SizedBox(height: 20),
               if (!studyModeService.showAnswer)
-                Column(
-                  children: [
-                    TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        labelText: 'Your Answer',
-                        border: OutlineInputBorder(),
-                      ),
-                      onSubmitted: (userAnswer) {
-                        studyModeService.submitAnswer(userAnswer);
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        studyModeService.submitAnswer(
-                          _controller.text,
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                      ),
-                      child: Text(
-                        'Submit Answer',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
+                StudyModeInput(submit: studyModeService.submitAnswer),
               if (studyModeService.showAnswer)
                 ElevatedButton(
                   onPressed: studyModeService.feedback == 'Correct!'
                       ? onNext
-                      : () {
-                          studyModeService.resetState();
-                          _controller.clear();
-                        },
+                      : studyModeService.resetState,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: studyModeService.feedback == 'Correct!'
                         ? Colors.green
