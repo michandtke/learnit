@@ -7,9 +7,11 @@ class StudyModeService with ChangeNotifier {
   int _currentCardIndex = 0;
   bool _showAnswer = false;
   String? _feedback;
+  bool? _correct = false;
 
   List<CardModel> get cards => _cards;
   bool get showAnswer => _showAnswer;
+  bool get correct => _correct == true;
   String? get feedback => _feedback;
   CardModel get currentCard => _cards[_currentCardIndex];
 
@@ -23,8 +25,10 @@ class StudyModeService with ChangeNotifier {
   void submitAnswer(String userAnswer) {
     if (userAnswer.trim().toLowerCase() == currentCard.answer.trim().toLowerCase()) {
       _feedback = 'Correct!';
+      _correct = true;
     } else {
       _feedback = 'Wrong, try again!';
+      _correct = false;
     }
     _showAnswer = true;
     notifyListeners();
@@ -33,6 +37,7 @@ class StudyModeService with ChangeNotifier {
   void resetState() {
     _showAnswer = false;
     _feedback = null;
+    _correct = null;
     notifyListeners();
   }
 

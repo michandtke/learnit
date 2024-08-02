@@ -39,7 +39,7 @@ class StudyModeContent extends StatelessWidget {
                           studyModeService.feedback != null)
                         StudyModeFeedback(
                             feedback: studyModeService.feedback!,
-                            correct: studyModeService.feedback == 'Correct!'),
+                            correct: studyModeService.correct),
                     ],
                   ),
                 ),
@@ -49,22 +49,19 @@ class StudyModeContent extends StatelessWidget {
                 StudyModeInput(submit: studyModeService.submitAnswer),
               if (studyModeService.showAnswer)
                 ElevatedButton(
-                  onPressed: studyModeService.feedback == 'Correct!'
+                  onPressed: studyModeService.correct
                       ? onNext
                       : studyModeService.resetState,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: studyModeService.feedback == 'Correct!'
-                        ? Colors.green
-                        : Colors.red,
+                    backgroundColor:
+                        studyModeService.correct ? Colors.green : Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                   ),
                   child: Text(
-                    studyModeService.feedback == 'Correct!'
-                        ? 'Next Card'
-                        : 'Try Again',
+                    studyModeService.correct ? 'Next Card' : 'Try Again',
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
